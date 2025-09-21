@@ -1,0 +1,38 @@
+# Compiled executables
+hw1
+hw1_ref
+hw1_grok
+*.exe
+*.out
+
+# Object files
+*.o
+*.obj
+
+# Libraries
+*.lib
+*.a
+*.so
+*.dll
+
+# Build directories
+build/
+bin/
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.swp
+*.bak
+
+# Test input/output files (if generated)
+*.in
+*.out
+*.floats
