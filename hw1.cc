@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
 
     std::vector<float> data(local_n);
     std::vector<float> recv_buf;
-    std::vector<float> merge_buf(local_n); // 重用的合併緩衝區
+    std::vector<float> merge_buf(local_n);
 
     int max_neighbor_n;
     if (prev_n > next_n)
