@@ -5,6 +5,7 @@
 #include <numeric>
 #include <algorithm>
 #include <cstring>
+#include <cstdlib>
 #include <boost/sort/spreadsort/spreadsort.hpp>
 
 void merge_and_swap(std::vector<float> &data, const std::vector<float> &recv_buf, int recv_n, bool keep_smaller, std::vector<float> &result)
@@ -12,7 +13,6 @@ void merge_and_swap(std::vector<float> &data, const std::vector<float> &recv_buf
     if (data.empty() || recv_n == 0)
         return;
 
-    // 早期返回檢查
     if (keep_smaller && data.back() <= recv_buf[0])
         return;
     if (!keep_smaller && data[0] >= recv_buf[recv_n - 1])
@@ -140,7 +140,21 @@ int main(int argc, char *argv[])
         }
     }
 
-    std::vector<float> data(local_n);
+    std::vector<float> data;
+    if (local_n > 0)
+    {
+        float *temp_data = (float *)malloc(local_n * sizeof(float));
+
+        MPI_File in_file;
+        MPI_File_open(comm, input_path.c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &in_file);
+        MPI_File_read_at(in_file, offset * sizeof(float), temp_data, local_n, MPI_FLOAT, MPI_STATUS_IGNORE);
+        MPI_File_close(&in_file);
+
+        data.assign(temp_data, temp_data + local_n);
+
+        free(temp_data);
+    }
+
     std::vector<float> recv_buf;
     std::vector<float> merge_buf(local_n);
 
@@ -151,14 +165,6 @@ int main(int argc, char *argv[])
         max_neighbor_n = next_n;
     if (max_neighbor_n > 0)
         recv_buf.resize(max_neighbor_n);
-
-    MPI_File in_file;
-    MPI_File_open(comm, input_path.c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &in_file);
-    if (local_n > 0)
-    {
-        MPI_File_read_at(in_file, offset * sizeof(float), data.data(), local_n, MPI_FLOAT, MPI_STATUS_IGNORE);
-    }
-    MPI_File_close(&in_file);
 
     if (local_n > 0)
     {
